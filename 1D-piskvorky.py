@@ -2,11 +2,44 @@
 #definice herního pole a značek
 radku = 6
 sloupcu = 10
+velikost_piskvorky = 3
 
 def vytvor_slovnik(radku, sloupcu):
     slovnik = [ [ '-' for x in range(0, sloupcu) ] for y in range(0, radku) ]
     return slovnik
 
+def testuj_smer(slovnik, velikost_piskvorky, r, s, barva, smer):
+    for sl in range(0, velikost_piskvorky):
+        radek = r + sl * smer[0]
+        sloupec = s + sl * smer[1]
+        if otestuj_rozsah(radek, sloupec, radku, sloupcu):
+            if slovnik[radek][sloupec] != barva:
+                return False
+        else:
+            return False
+    return True
+
+
+def testuj_piskvorku(slovnik, velikost_piskvorky, r, s, barva):
+    smery = [(0, 1), (1, 0), (1, 1), (1, -1)]
+    nalezeno = False
+    for smer in smery:
+        test_smeru = testuj_smer(slovnik, velikost_piskvorky, r, s, barva, smer)
+        if test_smeru:
+            return True
+    return False
+
+def najdi_piskvorku(slovnik, velikost_piskvorky, radek, sloupec, barva):
+    print('Hledam piskvorku, posledni pozice: %d,%d barvy %s' % (radek, sloupec, barva))
+
+    for r in range(0, len(slovnik)):
+        for s in range(0, len(slovnik[0])):
+            if testuj_piskvorku(slovnik, velikost_piskvorky, r, s, barva):
+                return 'Vitezstvi! %s' % barva
+    
+    return False
+
+    
 
 slovnik = vytvor_slovnik(radku, sloupcu)
 znacka = ['-', 'x', 'o']
@@ -28,6 +61,9 @@ print (uvod)
 
 class OccupiedTileException(Exception):
     pass
+
+def otestuj_rozsah(index_radku, hodnota, radku, sloupcu):
+    return index_radku >= 0 and index_radku < radku and hodnota >= 0 and hodnota < sloupcu
 
 is_finished = False
 i = 0
@@ -53,12 +89,17 @@ while i < delkaslovniku and not is_finished:
 
             print (index_radku, hodnota)
 
-            if (index_radku < 0 or index_radku > radku or hodnota < 0 or hodnota > sloupcu):
+            if not otestuj_rozsah(index_radku, hodnota, radku, sloupcu):
                 raise ValueError('Suuradnice jsou mimo rozsah!')
             
             if slovnik[index_radku][hodnota] == '-':
                 slovnik[index_radku][hodnota] = znacka[hrac]
                 print_slovnik()
+
+                piskvorka = najdi_piskvorku(slovnik, velikost_piskvorky, index_radku, hodnota, znacka[hrac])
+                if piskvorka:
+                    print(piskvorka)
+                    is_finished = True
                 break
             else:
                 raise OccupiedTileException()
