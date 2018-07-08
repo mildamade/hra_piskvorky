@@ -14,9 +14,12 @@ def hracfn(pocettahu):
 uvod = "Toto je pokus o 1D piškvorky"
 print (uvod)
 
+class OccupiedTileException(Exception):
+    pass
 
-
-for i in range(5):
+is_finished = False
+i = 0
+while i < delkaslovniku and not is_finished:
     pocettahu= (pocettahu +1)
     hrac=hracfn(pocettahu)
     radek= str(pocettahu)+ ' kolo:'
@@ -24,7 +27,10 @@ for i in range(5):
 
     # kontrola zda je policko prazdne
     while True:
-        vstup = input('Zadejte číslo od 1 do 10: ')
+        vstup = input('Zadejte číslo od 1 do 10; Q pro ukoncen: ')
+        if vstup.upper() == 'Q':
+            is_finished = True
+            break
         try:
             hodnota=int (vstup)-1
             
@@ -33,10 +39,13 @@ for i in range(5):
                 print(slovnik)
                 break
             else:
-                print ('Obsazené pole, zvol jiné číslo !')
-                print(slovnik)
-        except Exception as e:
+                raise OccupiedTileException()
+
+        except ValueError as e:
             print('Spatny vstup pro tah %d : %s' % (i, vstup))
+            print(slovnik)
+        except OccupiedTileException as e:
+            print('Obsazené pole, zvol jiné číslo !')
             print(slovnik)
 
     
